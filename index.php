@@ -37,8 +37,8 @@ $large_image_name = $large_image_prefix.$_SESSION['random_key'];     // New name
 $thumb_image_name = $thumb_image_prefix.$_SESSION['random_key'];     // New name of the thumbnail image (append the timestamp to the filename)
 $max_file = "3"; 							// Maximum file size in MB
 $max_width = "500";							// Max width allowed for the large image
-$thumb_width = "100";						// Width of thumbnail image
-$thumb_height = "100";						// Height of thumbnail image
+$thumb_width = "190";						// Width of thumbnail image
+$thumb_height = "120";						// Height of thumbnail image
 // Only one of these image types should be allowed for upload
 $allowed_image_types = array('image/pjpeg'=>"jpg",'image/jpeg'=>"jpg",'image/jpg'=>"jpg",'image/png'=>"png",'image/x-png'=>"png",'image/gif'=>"gif");
 $allowed_image_ext = array_unique($allowed_image_types); // do not change this
@@ -255,9 +255,11 @@ if ($_GET['a']=="delete" && strlen($_GET['t'])>0){
 	$large_image_location = $upload_path.$large_image_prefix.$_GET['t'];
 	$thumb_image_location = $upload_path.$thumb_image_prefix.$_GET['t'];
 	if (file_exists($large_image_location)) {
+		//jagl eliminar (todavia no se que)
 		unlink($large_image_location);
 	}
 	if (file_exists($thumb_image_location)) {
+		//jagl eliminar (todavia no se que)
 		unlink($thumb_image_location);
 	}
 	header("location:".$_SERVER["PHP_SELF"]);
