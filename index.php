@@ -1,27 +1,20 @@
 <?php
 /*
-* Copyright (c) 2008 http://www.webmotionuk.com / http://www.webmotionuk.co.uk
-* "PHP & Jquery image upload & crop"
-* Date: 2008-11-21
-* Ver 1.2
-* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-* IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
-* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
-* STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF 
-* THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
+ * Documentacion oficial
+http://www.webmotionuk.co.uk/php-jquery-image-upload-and-crop/
 */
+
+//jagl reportar todos los errores
 error_reporting (E_ALL ^ E_NOTICE);
 session_start(); //Do not remove this
 //only assign a new timestamp if the session variable is empty
 if (!isset($_SESSION['random_key']) || strlen($_SESSION['random_key'])==0){
+	#date('Y-m-d H:i:s')
+	# devuelve la hora actual en este momento, ej;echo date('Y-m-d H:i:s'); imprime 2013-03-19 17:31:35
+	
+	#strtotime
+	# devuelve el tiempo transcurrido UNIX (timestamp)
+	# tomando la fecha que es pasada como string ej; echo strtotime("2013-03-19 17:31:35");
     $_SESSION['random_key'] = strtotime(date('Y-m-d H:i:s')); //assign the timestamp to the session variable
 	$_SESSION['user_file_ext']= "";
 }
@@ -276,29 +269,7 @@ if ($_GET['a']=="delete" && strlen($_GET['t'])>0){
 	<script type="text/javascript" src="js/jquery.imgareaselect.min.js"></script>
 </head>
 <body>
-<!-- 
-* Copyright (c) 2008 http://www.webmotionuk.com / http://www.webmotionuk.co.uk
-* Date: 2008-11-21
-* "PHP & Jquery image upload & crop"
-* Ver 1.2
-* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-* IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
-* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
-* STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF 
-* THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
--->
-<ul>
-	<li><a href="http://www.webmotionuk.co.uk/php-jquery-image-upload-and-crop/">Back to project page</a></li>
-	<li><a href="http://www.webmotionuk.co.uk/jquery_upload_crop.zip">Download Files</a></li>
-</ul>
+
 <?php
 //Only display the javacript if an image has been uploaded
 if(strlen($large_photo_exists)>0){
@@ -346,7 +317,7 @@ $(window).load(function () {
 
 </script>
 <?php }?>
-<h1>Photo Upload and Crop</h1>
+<h1>Subir y redimensionar</h1>
 <?php
 //Display error message if there are any
 if(strlen($error)>0){
@@ -361,7 +332,7 @@ if(strlen($large_photo_exists)>0 && strlen($thumb_photo_exists)>0){
 	$_SESSION['user_file_ext']= "";
 }else{
 		if(strlen($large_photo_exists)>0){?>
-		<h2>Create Thumbnail</h2>
+		<h2>Crear Imagen de introducción</h2>
 		<div align="center">
 			<img src="<?php echo $upload_path.$large_image_name.$_SESSION['user_file_ext'];?>" style="float: left; margin-right: 10px;" id="thumbnail" alt="Create Thumbnail" />
 			<div style="border:1px #e5e5e5 solid; float:left; position:relative; overflow:hidden; width:<?php echo $thumb_width;?>px; height:<?php echo $thumb_height;?>px;">
@@ -380,7 +351,7 @@ if(strlen($large_photo_exists)>0 && strlen($thumb_photo_exists)>0){
 		</div>
 	<hr />
 	<?php 	} ?>
-	<h2>Upload Photo</h2>
+	<h2>Subir imagen</h2>
 	<form name="photo" enctype="multipart/form-data" action="<?php echo $_SERVER["PHP_SELF"];?>" method="post">
 	Photo <input type="file" name="image" size="30" /> <input type="submit" name="upload" value="Upload" />
 	</form>
