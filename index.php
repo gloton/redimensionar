@@ -178,6 +178,7 @@ if (file_exists($large_image_location)){
 	$thumb_photo_exists = "";
 }
 
+//Capture, rename and resize the uploaded file. (We also provided a set name for the uploaded file.)
 if (isset($_POST["upload"])) { 
 	//Get the file information
 	$userfile_name = $_FILES['image']['name'];
@@ -185,6 +186,7 @@ if (isset($_POST["upload"])) {
 	$userfile_size = $_FILES['image']['size'];
 	$userfile_type = $_FILES['image']['type'];
 	$filename = basename($_FILES['image']['name']);
+	//echo $filename;
 	$file_ext = strtolower(substr($filename, strrpos($filename, '.') + 1));
 	
 	//Only process if the file is a JPG, PNG or GIF and below the allowed limit
@@ -296,6 +298,15 @@ if(strlen($large_photo_exists)>0){
 	$current_large_image_width = getWidth($large_image_location);
 	$current_large_image_height = getHeight($large_image_location);?>
 <script type="text/javascript">
+/*La funcion de abajo, llamada preview, es ejecutada tan proto tu 
+ * haces una seleccion.
+ *En la parte derecha de la imagen.
+ *La segunda parte de la función rellena los campos ocultos que posteriormente se pasan al servidor-
+/*
+ * The preview function below, is run as soon as you create your selection. 
+ * This places the right part of the image into the preview window. The second 
+ * part of the function populates hidden fields which are later passed to the server.
+ */	
 function preview(img, selection) { 
 	var scaleX = <?php echo $thumb_width;?> / selection.width; 
 	var scaleY = <?php echo $thumb_height;?> / selection.height; 
@@ -332,6 +343,15 @@ $(document).ready(function () {
 }); 
 
 $(window).load(function () { 
+/*
+	There are a number of options with this plugin which you can see using the link above. 
+	We opted for an aspect ratio of 1:1 (height and width of 100px) along with a preview 
+	of what we are actually going to crop.
+	Lets break it down, we first set the imgAreaSelect function to the image we want to crop, 
+	i.e. the one we just uploaded. As you can see, the aspect ration is set to 1:1(al parecer ahora no es asi), which 
+	means we are going to get a square selection. The “onSelectChange” is a callback function 
+	which runs the preview function when a change is made to the crop.	
+	*/
 	//jagl ocupa el plugin de seleccion de area dentro de una imagen
 	$('#thumbnail').imgAreaSelect({ aspectRatio: '1:<?php echo $thumb_height/$thumb_width;?>', onSelectChange: preview }); 
 });
@@ -376,7 +396,8 @@ if(strlen($large_photo_exists)>0 && strlen($thumb_photo_exists)>0){
 	<form name="photo" enctype="multipart/form-data" action="<?php echo $_SERVER["PHP_SELF"];?>" method="post">
 	Photo <input type="file" name="image" size="30" /> <input type="submit" name="upload" value="Upload" />
 	</form>
-<?php } ?>
+<?php } 
+?>
 <!-- Copyright (c) 2008 http://www.webmotionuk.com -->
 </body>
 </html>
