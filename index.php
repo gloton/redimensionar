@@ -186,12 +186,12 @@ if (file_exists($large_image_location)){
 	//verifica si existe una imagen (chica) con el mismo nombre
 	if(file_exists($thumb_image_location)){
 		//si existe, crea la ruta
-		$thumb_photo_exists = "<img src=\"".$upload_path.$thumb_image_name.$_SESSION['user_file_ext']."\" alt=\"Thumbnail Image\"/>";
+		$thumb_photo_exists = "<img id=\"preview_thum\" src=\"".$upload_path.$thumb_image_name.$_SESSION['user_file_ext']."\" alt=\"Thumbnail Image\"/>";
 	}else{
 		$thumb_photo_exists = "";
 	}
 	//si existe, crea la ruta
-   	$large_photo_exists = "<img src=\"".$upload_path.$large_image_name.$_SESSION['user_file_ext']."\" alt=\"Large Image\"/>";
+   	$large_photo_exists = "<img id=\"preview_origin\" src=\"".$upload_path.$large_image_name.$_SESSION['user_file_ext']."\" alt=\"Large Image\"/>";
 } else {
    	$large_photo_exists = "";
 	$thumb_photo_exists = "";
