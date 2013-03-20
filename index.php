@@ -7,7 +7,9 @@ http://www.webmotionuk.co.uk/php-jquery-image-upload-and-crop/
 //jagl reportar todos los errores
 error_reporting (E_ALL ^ E_NOTICE);
 session_start(); //Do not remove this
-//only assign a new timestamp if the session variable is empty
+
+/*only assign a new timestamp if the session variable is empty- jagl si no existe la variable de session
+o si existe la sesion pero con largo cero*/
 if (!isset($_SESSION['random_key']) || strlen($_SESSION['random_key'])==0){
 	#date('Y-m-d H:i:s')
 	# devuelve la hora actual en este momento, ej;echo date('Y-m-d H:i:s'); imprime 2013-03-19 17:31:35
@@ -16,6 +18,8 @@ if (!isset($_SESSION['random_key']) || strlen($_SESSION['random_key'])==0){
 	# devuelve el tiempo transcurrido UNIX (timestamp)
 	# tomando la fecha que es pasada como string ej; echo strtotime("2013-03-19 17:31:35");
     $_SESSION['random_key'] = strtotime(date('Y-m-d H:i:s')); //assign the timestamp to the session variable
+    
+    //jagl me parece que lo ocuparan para la extension que le colocaran al archivos
 	$_SESSION['user_file_ext']= "";
 }
 #########################################################################################################
@@ -26,7 +30,10 @@ $upload_dir = "upload_pic"; 				// The directory for the images to be saved in
 $upload_path = $upload_dir."/";				// The path to where the image will be saved
 $large_image_prefix = "resize_"; 			// The prefix name to large image
 $thumb_image_prefix = "thumbnail_";			// The prefix name to the thumb image
+
+//jagl nombre de la imagen grande
 $large_image_name = $large_image_prefix.$_SESSION['random_key'];     // New name of the large image (append the timestamp to the filename)
+//jagl nombre de la imagen chica
 $thumb_image_name = $thumb_image_prefix.$_SESSION['random_key'];     // New name of the thumbnail image (append the timestamp to the filename)
 $max_file = "3"; 							// Maximum file size in MB
 $max_width = "500";							// Max width allowed for the large image
@@ -34,9 +41,15 @@ $thumb_width = "190";						// Width of thumbnail image
 $thumb_height = "120";						// Height of thumbnail image
 // Only one of these image types should be allowed for upload
 $allowed_image_types = array('image/pjpeg'=>"jpg",'image/jpeg'=>"jpg",'image/jpg'=>"jpg",'image/png'=>"png",'image/x-png'=>"png",'image/gif'=>"gif");
+
+# array_unique
+#Crea un nuevo array sin los valores repetidos. Si hay dos indices con igual valor solo conserva uno de ellos.
 $allowed_image_ext = array_unique($allowed_image_types); // do not change this
+
 $image_ext = "";	// initialise variable, do not change this.
 foreach ($allowed_image_ext as $mime_type => $ext) {
+	#strtoupper
+	# Devuelve el string en mayúsculas. 
     $image_ext.= strtoupper($ext)." ";
 }
 
@@ -142,12 +155,16 @@ function getWidth($image) {
 $large_image_location = $upload_path.$large_image_name.$_SESSION['user_file_ext'];
 $thumb_image_location = $upload_path.$thumb_image_name.$_SESSION['user_file_ext'];
 
-//Create the upload directory with the right permissions if it doesn't exist
+# is_dir
+#si existe directorio devuelve verdadero
+/*Create the upload directory with the right permissions if it doesn't exist 
+- crea el directorio en caso de que no este creado y le asigna los permisoss*/
 if(!is_dir($upload_dir)){
 	mkdir($upload_dir, 0777);
 	chmod($upload_dir, 0777);
 }
 
+//verifica si existe una imagen con el mismo nombre
 //Check to see if any images with the same name already exist
 if (file_exists($large_image_location)){
 	if(file_exists($thumb_image_location)){
@@ -199,8 +216,11 @@ if (isset($_POST["upload"])) {
 			$large_image_location = $large_image_location.".".$file_ext;
 			$thumb_image_location = $thumb_image_location.".".$file_ext;
 			
+			//asignacion del nombre de la extencion, ej; si subu un jpg $_SESSION['user_file_ext'] tendra el valor .jpg
 			//put the file ext in the session so we know what file to look for once its uploaded
 			$_SESSION['user_file_ext']=".".$file_ext;
+
+			
 			
 			move_uploaded_file($userfile_tmp, $large_image_location);
 			chmod($large_image_location, 0777);
@@ -312,6 +332,7 @@ $(document).ready(function () {
 }); 
 
 $(window).load(function () { 
+	//jagl ocupa el plugin de seleccion de area dentro de una imagen
 	$('#thumbnail').imgAreaSelect({ aspectRatio: '1:<?php echo $thumb_height/$thumb_width;?>', onSelectChange: preview }); 
 });
 
