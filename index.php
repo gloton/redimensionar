@@ -9,7 +9,7 @@ error_reporting (E_ALL ^ E_NOTICE);
 session_start(); //Do not remove this
 
 /*only assign a new timestamp if the session variable is empty- jagl si no existe la variable de session
-o si existe la sesion pero con largo cero*/
+o si existe la sesion pero con largo cero*/  
 if (!isset($_SESSION['random_key']) || strlen($_SESSION['random_key'])==0){
 	#date('Y-m-d H:i:s')
 	# devuelve la hora actual en este momento, ej;echo date('Y-m-d H:i:s'); imprime 2013-03-19 17:31:35
@@ -31,9 +31,10 @@ $upload_path = $upload_dir."/";				// The path to where the image will be saved
 $large_image_prefix = "resize_"; 			// The prefix name to large image
 $thumb_image_prefix = "thumbnail_";			// The prefix name to the thumb image
 
-//jagl nombre de la imagen grande
+//jagl nombre de la imagen grande(sin extension)
 $large_image_name = $large_image_prefix.$_SESSION['random_key'];     // New name of the large image (append the timestamp to the filename)
-//jagl nombre de la imagen chica
+
+//jagl nombre de la imagen chica(sin extension)
 $thumb_image_name = $thumb_image_prefix.$_SESSION['random_key'];     // New name of the thumbnail image (append the timestamp to the filename)
 $max_file = "3"; 							// Maximum file size in MB
 $max_width = "500";							// Max width allowed for the large image
@@ -79,7 +80,7 @@ function resizeImage($image,$width,$height,$scale) {
 			break;
   	}
 	imagecopyresampled($newImage,$source,0,0,0,0,$newImageWidth,$newImageHeight,$width,$height);
-	
+
 	switch($imageType) {
 		case "image/gif":
 	  		imagegif($newImage,$image); 
@@ -120,6 +121,12 @@ function resizeThumbnailImage($thumb_image_name, $image, $width, $height, $start
 			$source=imagecreatefrompng($image); 
 			break;
   	}
+  	
+  	/*imagecopyresampled se preocupa de crear fisicamente la imagen thum que se esta seleccionando
+  	 * si comento esta linea, se creara una imagen pero sin contenido (en negro)
+  	 * En conjunto con las funciones que estan abajo crean el thum (imagegif,imagejpeg y imagepng)
+  	 * A LO MEJOR PARA ACA PODRIA DESTRUIR LA SESION, DESPUES DE IMAGEJPEG POR EJEMPLO O CUANDO MUESTRE Delete images
+  	 */
 	imagecopyresampled($newImage,$source,0,0,$start_width,$start_height,$newImageWidth,$newImageHeight,$width,$height);
 	switch($imageType) {
 		case "image/gif":
@@ -138,12 +145,17 @@ function resizeThumbnailImage($thumb_image_name, $image, $width, $height, $start
 	chmod($thumb_image_name, 0777);
 	return $thumb_image_name;
 }
+
+
+//obtiene el alto de la imagen
 //You do not need to alter these functions
 function getHeight($image) {
 	$size = getimagesize($image);
 	$height = $size[1];
 	return $height;
 }
+
+//obtiene el ancho de la imagen
 //You do not need to alter these functions
 function getWidth($image) {
 	$size = getimagesize($image);
@@ -151,9 +163,13 @@ function getWidth($image) {
 	return $width;
 }
 
+#$large_image_location
+# ruta que incluye el nombre del archivo y la extension ej; upload_pic/resize_1363792515.jpg
 //Image Locations
 $large_image_location = $upload_path.$large_image_name.$_SESSION['user_file_ext'];
+//echo '<script type="text/javascript">alert("'.$large_image_location.'");</script>' ;
 $thumb_image_location = $upload_path.$thumb_image_name.$_SESSION['user_file_ext'];
+//echo '<script type="text/javascript">alert("'.$thumb_image_location.'");</script>' ;
 
 # is_dir
 #si existe directorio devuelve verdadero
@@ -164,29 +180,31 @@ if(!is_dir($upload_dir)){
 	chmod($upload_dir, 0777);
 }
 
-//verifica si existe una imagen con el mismo nombre
+//verifica si existe una imagen (grande) con el mismo nombre 
 //Check to see if any images with the same name already exist
 if (file_exists($large_image_location)){
+	//verifica si existe una imagen (chica) con el mismo nombre
 	if(file_exists($thumb_image_location)){
-		$thumb_photo_exists = "<img src=\"".$upload_path.$thumb_image_name.$_SESSION['user_file_ext']."\" alt=\"Thumbnail Image\"/>";
+		//si existe, crea la ruta
+		$thumb_photo_exists = "<img id=\"preview_thum\" src=\"".$upload_path.$thumb_image_name.$_SESSION['user_file_ext']."\" alt=\"Thumbnail Image\"/>";
 	}else{
 		$thumb_photo_exists = "";
 	}
-   	$large_photo_exists = "<img src=\"".$upload_path.$large_image_name.$_SESSION['user_file_ext']."\" alt=\"Large Image\"/>";
+	//si existe, crea la ruta
+   	$large_photo_exists = "<img id=\"preview_origin\" src=\"".$upload_path.$large_image_name.$_SESSION['user_file_ext']."\" alt=\"Large Image\"/>";
 } else {
    	$large_photo_exists = "";
 	$thumb_photo_exists = "";
 }
 
-//Capture, rename and resize the uploaded file. (We also provided a set name for the uploaded file.)
-if (isset($_POST["upload"])) { 
+//jagl al momento de subir la imagen entra dentro de este if
+if (isset($_POST["upload"])) {
 	//Get the file information
 	$userfile_name = $_FILES['image']['name'];
 	$userfile_tmp = $_FILES['image']['tmp_name'];
 	$userfile_size = $_FILES['image']['size'];
 	$userfile_type = $_FILES['image']['type'];
 	$filename = basename($_FILES['image']['name']);
-	//echo $filename;
 	$file_ext = strtolower(substr($filename, strrpos($filename, '.') + 1));
 	
 	//Only process if the file is a JPG, PNG or GIF and below the allowed limit
@@ -206,9 +224,8 @@ if (isset($_POST["upload"])) {
 		if ($userfile_size > ($max_file*1048576)) {
 			$error.= "Images must be under ".$max_file."MB in size";
 		}
-		
 	}else{
-		$error= "Select an image for upload";
+		$error= "Seleccione una imagen para subir";
 	}
 	//Everything is ok, so we can upload the image.
 	if (strlen($error)==0){
@@ -221,14 +238,16 @@ if (isset($_POST["upload"])) {
 			//asignacion del nombre de la extencion, ej; si subu un jpg $_SESSION['user_file_ext'] tendra el valor .jpg
 			//put the file ext in the session so we know what file to look for once its uploaded
 			$_SESSION['user_file_ext']=".".$file_ext;
-
 			
-			
-			move_uploaded_file($userfile_tmp, $large_image_location);
+			//jagl move_uploaded_file copia la imagen(ORIGINAL) seleccionada desde el formulario a la carpeta designada en el servidor
+			move_uploaded_file($userfile_tmp, $large_image_location) or die("no se guardo la imagen");
 			chmod($large_image_location, 0777);
 			
+			//jagl ancho y alto de la imagen original
 			$width = getWidth($large_image_location);
 			$height = getHeight($large_image_location);
+			
+			//entre en el if si $width es mayor a el ancho maximo determinado por el usuario (configurado en 500 por defecto)
 			//Scale the image if it is greater than the width set above
 			if ($width > $max_width){
 				$scale = $max_width/$width;
@@ -286,7 +305,7 @@ if ($_GET['a']=="delete" && strlen($_GET['t'])>0){
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 	<meta name="generator" content="WebMotionUK" />
-	<title>WebMotionUK - PHP &amp; Jquery image upload &amp; crop</title>
+	<title>Redimensinar imagen con PHP y jQuery</title>
 	<script type="text/javascript" src="js/jquery-pack.js"></script>
 	<script type="text/javascript" src="js/jquery.imgareaselect.min.js"></script>
 </head>
@@ -298,15 +317,6 @@ if(strlen($large_photo_exists)>0){
 	$current_large_image_width = getWidth($large_image_location);
 	$current_large_image_height = getHeight($large_image_location);?>
 <script type="text/javascript">
-/*La funcion de abajo, llamada preview, es ejecutada tan proto tu 
- * haces una seleccion.
- *En la parte derecha de la imagen.
- *La segunda parte de la función rellena los campos ocultos que posteriormente se pasan al servidor-
-/*
- * The preview function below, is run as soon as you create your selection. 
- * This places the right part of the image into the preview window. The second 
- * part of the function populates hidden fields which are later passed to the server.
- */	
 function preview(img, selection) { 
 	var scaleX = <?php echo $thumb_width;?> / selection.width; 
 	var scaleY = <?php echo $thumb_height;?> / selection.height; 
@@ -325,6 +335,11 @@ function preview(img, selection) {
 	$('#h').val(selection.height);
 } 
 
+/*
+ * This function is not really required, but helps by checking to see if the user has 
+ * made a crop selection. In our case it is a required step. The form is submitted if 
+ * the values exist, i.e. a selection has been made.
+ */
 $(document).ready(function () { 
 	$('#save_thumb').click(function() {
 		var x1 = $('#x1').val();
@@ -334,7 +349,7 @@ $(document).ready(function () {
 		var w = $('#w').val();
 		var h = $('#h').val();
 		if(x1=="" || y1=="" || x2=="" || y2=="" || w=="" || h==""){
-			alert("You must make a selection first");
+			alert("Usted debe hacer una primera selección");
 			return false;
 		}else{
 			return true;
@@ -343,15 +358,6 @@ $(document).ready(function () {
 }); 
 
 $(window).load(function () { 
-/*
-	There are a number of options with this plugin which you can see using the link above. 
-	We opted for an aspect ratio of 1:1 (height and width of 100px) along with a preview 
-	of what we are actually going to crop.
-	Lets break it down, we first set the imgAreaSelect function to the image we want to crop, 
-	i.e. the one we just uploaded. As you can see, the aspect ration is set to 1:1(al parecer ahora no es asi), which 
-	means we are going to get a square selection. The “onSelectChange” is a callback function 
-	which runs the preview function when a change is made to the crop.	
-	*/
 	//jagl ocupa el plugin de seleccion de area dentro de una imagen
 	$('#thumbnail').imgAreaSelect({ aspectRatio: '1:<?php echo $thumb_height/$thumb_width;?>', onSelectChange: preview }); 
 });
@@ -380,6 +386,7 @@ if(strlen($large_photo_exists)>0 && strlen($thumb_photo_exists)>0){
 				<img src="<?php echo $upload_path.$large_image_name.$_SESSION['user_file_ext'];?>" style="position: relative;" alt="Thumbnail Preview" />
 			</div>
 			<br style="clear:both;"/>
+			<h1>Formulario thumbnails</h1>
 			<form name="thumbnail" action="<?php echo $_SERVER["PHP_SELF"];?>" method="post">
 				<input type="hidden" name="x1" value="" id="x1" />
 				<input type="hidden" name="y1" value="" id="y1" />
@@ -394,7 +401,9 @@ if(strlen($large_photo_exists)>0 && strlen($thumb_photo_exists)>0){
 	<?php 	} ?>
 	<h2>Subir imagen</h2>
 	<form name="photo" enctype="multipart/form-data" action="<?php echo $_SERVER["PHP_SELF"];?>" method="post">
-	Photo <input type="file" name="image" size="30" /> <input type="submit" name="upload" value="Upload" />
+	Photo 
+	<input type="file" name="image" size="30" /> 
+	<input type="submit" name="upload" value="Upload" />
 	</form>
 <?php } 
 ?>
