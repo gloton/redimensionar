@@ -240,7 +240,7 @@ if (isset($_POST["upload"])) {
 			$_SESSION['user_file_ext']=".".$file_ext;
 			
 			//jagl move_uploaded_file copia la imagen(ORIGINAL) seleccionada desde el formulario a la carpeta designada en el servidor
-			move_uploaded_file($userfile_tmp, $large_image_location);
+			move_uploaded_file($userfile_tmp, $large_image_location) or die("no se guardo la imagen");
 			chmod($large_image_location, 0777);
 			
 			//jagl ancho y alto de la imagen original
