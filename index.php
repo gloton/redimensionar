@@ -399,6 +399,8 @@ if(strlen($large_photo_exists)>0 && strlen($thumb_photo_exists)>0){
 		</div>
 	<hr />
 	<?php 	} ?>
+	<!-- jagl, este formulario aparece cuando es la primera vez que se ingresa 
+	es decir, cuando no se ha elegido/seleccionado ninguna imagen-->
 	<h2>Subir imagen</h2>
 	<form name="photo" enctype="multipart/form-data" action="<?php echo $_SERVER["PHP_SELF"];?>" method="post">
 	Photo 
